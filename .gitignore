@@ -1,0 +1,17 @@
+#Ignorar ambiente virtual
+.venv
+
+#Ignorar variáveis de ambiente (contém API key)
+.env
+
+#Ignorar caches de Python
+__pycache__/
+*.pyc
+*.pyo
+
+#Ignorar arquivos de log (caso crie futuramente)
+*.log
+
+#Ignorar arquivos temporários de sistema
+.DS_Store
+Thumbs.db
