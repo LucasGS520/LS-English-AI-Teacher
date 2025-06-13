@@ -48,6 +48,10 @@ if "mensagem" not in st.session_state:
         {"role": "system", "content": system_prompt}
     ]
 
+#Inicialização do nível com state controlado
+if "nivel" not in st.session_state:
+    st.session_state.nivel = "Iniciante"
+
 # ======================================== #
 # Layout e estilização da página (frontend)
 # ======================================== #
@@ -56,33 +60,39 @@ st.set_page_config(layout="centered", page_title="LS English - AI Teacher")
 #Estilo com melhor aparência (CSS)
 st.markdown("""
 <style>
-    .main {
-        background-color: #0A192F;
-        color: #FFFFFF;
-    }
-    .stTextInput input {
-        border-radius: 10px;
-        padding: 10px;
-        background-color: #ffffff12;
-        color: #FFFFFF;
-    }
-    .stButton button {
-        background-color: #4CAF50;
-        color: #FAF9F6;
-        padding: 10px 24px;
-        border-radius: 10px;
-        border: none;
-        font-size: 16px;
-        transition: 0.3s;
-    }
-    .stButton button:hover {
-        background-color: #45a049;
-    }
-    .stRadio div {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-    }
+html, body, [data-testid="stAppViewContainer"] {
+    background-color: #0A192F;
+    color: #FFFFFF;
+}
+.stTextInput input {
+    border-radius: 10px;
+    padding: 10px;
+    background-color: #ffffff12;
+    color: #000000;
+}
+.stTextInput label, .stRadio label, label, legend {
+    color: #FFFFFF !important;
+}
+.stRadio label span {
+    color: #FFFFFF !important;
+}
+.stButton button {
+    background-color: #4CAF50;
+    color: #FAF9F6;
+    padding: 10px 24px;
+    border-radius: 10px;
+    border: none;
+    font-size: 16px;
+    transition: 0.3s;
+}
+.stButton button:hover {
+    background-color: #45a049;
+}
+.stRadio div {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -99,14 +109,15 @@ st.markdown("<h4 style='text-align: center;'>Seu professor de inglês com inteli
 # ======================================== #
 # Seleção de nível de inglês (armazenado na sessão)
 # ======================================== #
-if "nivel" not in st.session_state:
-    st.session_state.nivel = st.radio(
-        "Selecione o seu nível de inglês:",
-        ("Iniciante", "Intermediário", "Avançado"),
-        horizontal=True
-    )
-else:
-    st.write(f"Nível selecionado: **{st.session_state.nivel}**")
+nivel_selecionado = st.radio(
+    "Selecione o seu nível de inglês:",
+    ("Iniciante", "Intermediário", "Avançado"),
+    index=("Iniciante", "Intermediário", "Avançado").index(st.session_state.nivel),
+    horizontal=True,
+    key="nivel"
+)
+
+st.write(f"Nível selecionado: **{st.session_state.nivel}**")
 
 # ======================================== #
 # Campo de entrada de perguntas do usuário
@@ -120,11 +131,11 @@ def chatgpt():
     try:
         resposta = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            mensagem=st.session_state.messages,
+            messages=st.session_state.mensagem,
             max_tokens=500,
             temperature=0.7,
         )
-        return resposta.choices[0].mensagem['content']
+        return resposta.choices[0].message['content']
 
     #Todos os tratamentos de erro
     except RateLimitError:
